@@ -1,23 +1,24 @@
-# Build stage
+# Use the .NET SDK to build the application
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
-# Set working directory inside the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the project file and restore dependencies
-COPY *.csproj ./
-RUN dotnet restore
+# Copy Program.cs to the container
+COPY Program.cs ./
 
-# Copy the rest of the application files
-COPY . ./
-RUN dotnet publish -c Release -o out
+# Build and publish the application
+RUN dotnet new console -n HelloWorldApp
+RUN dotnet publish -c Release -o /app/out
 
-# Final stage: use the runtime image to reduce size
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+# Use the .NET runtime image to run the application
+FROM mcr.microsoft.com/dotnet/runtime:6.0
 
+# Set working directory
 WORKDIR /app
 
-# Copy the published app from the build stage
-COPY --from=build /app/out .
+# Copy the published application from the build stage
+COPY --from=build /app/out ./
 
-EXPOSE 80
+# Set the entry point to run the application
+ENTRYPOINT ["dotnet", "HelloWorldApp.dll"]
