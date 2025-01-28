@@ -1,12 +1,9 @@
 using System;
 
-namespace HelloWorldApp
+class Program
 {
-    class Program
+    static void Main()
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, Plasma !");
-        }
+        Console.WriteLine("Hello, World!");
     }
 }
