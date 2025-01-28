@@ -1,28 +1,26 @@
-# Use the .NET SDK to build the application
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Use the official .NET SDK image to build the app
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the .csproj file and restore dependencies
-COPY HelloWorldApp.csproj ./HelloWorldApp/
-WORKDIR /app/HelloWorldApp
+# Copy the project files into the container
+COPY . .
+
+# Restore dependencies (if any)
 RUN dotnet restore
 
-# Copy Program.cs and the .csproj file to the container
-COPY Program.cs ./HelloWorldApp/
+# Publish the application (output will be in the /out directory)
+RUN dotnet publish -c Release -o /out
 
-# Build and publish the application
-RUN dotnet publish -c Release -o /app/out
+# Use the official .NET runtime image to run the app
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 
-# Use the .NET runtime image to run the application
-FROM mcr.microsoft.com/dotnet/runtime:8.0
-
-# Set working directory
+# Set the working directory in the runtime container
 WORKDIR /app
 
-# Copy the published application from the build stage
-COPY --from=build /app/out ./
+# Copy the published output from the build stage
+COPY --from=build /out .
 
-# Set the entry point to run the application
-ENTRYPOINT ["dotnet", "HelloWorldApp.dll"]
+# Set the entry point to run the app
+ENTRYPOINT ["dotnet", "HelloWorld.dll"]
